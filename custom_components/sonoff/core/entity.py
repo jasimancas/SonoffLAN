@@ -46,6 +46,9 @@ NAMES = {
     "ip_address": "IP address",
     "device_id": "Device ID",
     "sw_mode": "Control mode",
+    "pulse_enable": "Inching",
+    "pulse_width": "Inching duration",
+    "pulse_state": "Inching state",
     "extra_time_enable": "Extra time enabled",
     "auto_upgrade": "Auto update",
     "auto_upgrade_start": "Auto update from",
@@ -170,3 +173,14 @@ class XEntity(Entity):
             )
         else:
             await self.ewelink.send(self.device)
+
+
+async def send_pulses(entity, **changes):
+    """MINIR4M (uiid 138) - inching settings live in `pulses` (one item per outlet)."""
+    pulses = entity.device["params"].get("pulses") or []
+    item = dict(pulses[0]) if pulses else {"pulse": "off", "switch": "off", "width": 500}
+    item.update(changes, outlet=0)
+    entity.device["params"]["pulses"] = [item]
+    await entity.ewelink.send(
+        entity.device, {"pulses": [item]}, cmd_lan="pulses", query_cloud=False
+    )

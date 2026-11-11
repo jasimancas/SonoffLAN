@@ -69,11 +69,12 @@ from ..number import (
     XAlarmVolume,
     XFullCompTime,
     XPulseWidth,
+    XPulsesWidth,
     XSensitivity,
     XTempCorrectionNumber,
 )
 from ..remote import XRemote
-from ..select import XMotorDirection, XSwMode, XSelectStartup, XStartup
+from ..select import XMotorDirection, XPulsesState, XSwMode, XSelectStartup, XStartup
 from ..sensor import (
     XCalibState,
     XDeviceID,
@@ -103,6 +104,7 @@ from ..sensor import (
 )
 from ..switch import (
     XAutoUpgradeSwitch,
+    XPulsesSwitch,
     XAlarmLight,
     XAlarmVoice,
     XBoolSwitch,
@@ -453,6 +455,9 @@ DEVICES = {
         RSSI,
         spec(XIntSwitch, param="relaySeparation", uid="detach", enabled=False),
         XSwMode,
+        XPulsesSwitch,
+        XPulsesWidth,
+        XPulsesState,
         XMiniR4Key,
     ],
     # DW2-Wi-Fi-L, https://github.com/AlexxIT/SonoffLAN/issues/808

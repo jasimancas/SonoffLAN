@@ -50,6 +50,12 @@
           "toggle": "Conmutación",
           "momentary": "Pulsador"
         }
+      },
+      "pulse_state": {
+        "state": {
+          "auto_off": "Auto-apagado",
+          "auto_on": "Auto-encendido"
+        }
       }
     },
     "sensor": {

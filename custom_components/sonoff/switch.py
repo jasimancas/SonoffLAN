@@ -2,7 +2,7 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import EntityCategory
 
 from .core.const import DOMAIN
-from .core.entity import XEntity
+from .core.entity import XEntity, send_pulses
 from .core.ewelink import SIGNAL_ADD_ENTITIES, XRegistry
 
 PARALLEL_UPDATES = 0  # fix entity_platform parallel_updates Semaphore
@@ -297,3 +297,27 @@ class XAutoUpgradeSwitch(XEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs):
         await self._set(False)
+
+
+class XPulsesSwitch(XEntity, SwitchEntity):
+    """MINIR4M (uiid 138) - inching on/off (eWeLink app "Ajustes Impulso")."""
+
+    params = {"pulses"}
+    uid = "pulse_enable"
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:timer-outline"
+
+    def set_state(self, params: dict):
+        self._attr_is_on = params["pulses"][0].get("pulse") == "on"
+
+    async def _set(self, value: str):
+        await send_pulses(self, pulse=value)
+        self._attr_is_on = value == "on"
+        self._async_write_ha_state()
+
+    async def async_turn_on(self, **kwargs):
+        await self._set("on")
+
+    async def async_turn_off(self, **kwargs):
+        await self._set("off")

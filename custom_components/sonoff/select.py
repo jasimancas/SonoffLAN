@@ -2,7 +2,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.helpers.entity import EntityCategory
 
 from .core.const import DOMAIN
-from .core.entity import XEntity
+from .core.entity import XEntity, send_pulses
 from .core.ewelink import SIGNAL_ADD_ENTITIES, XRegistry
 
 PARALLEL_UPDATES = 0  # fix entity_platform parallel_updates Semaphore
@@ -146,3 +146,25 @@ class XSwMode(XEntity, SelectEntity):
             self.device, {"swMode": value}, cmd_lan="swmode", query_cloud=False
         )
         self._attr_current_option = option
+
+
+class XPulsesState(XEntity, SelectEntity):
+    """MINIR4M (uiid 138) - what inching does when the pulse ends (`pulses[0].switch`)."""
+
+    params = {"pulses"}
+    uid = "pulse_state"
+    _attr_translation_key = "pulse_state"
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:timer-sand"
+    _attr_options = ["auto_off", "auto_on"]
+    _states = {"off": "auto_off", "on": "auto_on"}
+
+    def set_state(self, params: dict):
+        self._attr_current_option = self._states.get(params["pulses"][0].get("switch"))
+
+    async def async_select_option(self, option: str):
+        value = next(k for k, v in self._states.items() if v == option)
+        await send_pulses(self, switch=value)
+        self._attr_current_option = option
+        self._async_write_ha_state()

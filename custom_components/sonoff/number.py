@@ -3,7 +3,7 @@ from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
 from .core.const import DOMAIN
-from .core.entity import XEntity
+from .core.entity import XEntity, send_pulses
 from .core.ewelink import SIGNAL_ADD_ENTITIES, XRegistry
 
 PARALLEL_UPDATES = 0  # fix entity_platform parallel_updates Semaphore
@@ -155,5 +155,29 @@ class XFullCompTime(XNumber):
         await self.ewelink.send(
             self.device, {"fullCompTime": comp}, cmd_lan="fullCompTime", query_cloud=False
         )
+        self._attr_native_value = value
+        self._async_write_ha_state()
+
+
+class XPulsesWidth(XNumber):
+    """MINIR4M (uiid 138) - inching duration (`pulses[0].width`, milliseconds)."""
+
+    params = {"pulses"}
+    uid = "pulse_width"
+
+    _attr_device_class = DEVICE_DURATION
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_registry_enabled_default = False
+    _attr_icon = "mdi:timer-cog-outline"
+    _attr_native_min_value = 0.5
+    _attr_native_max_value = 36000
+    _attr_native_step = 0.5
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
+
+    def set_state(self, params: dict):
+        self._attr_native_value = params["pulses"][0]["width"] / 1000
+
+    async def async_set_native_value(self, value: float) -> None:
+        await send_pulses(self, width=int(value / 0.5) * 500)
         self._attr_native_value = value
         self._async_write_ha_state()

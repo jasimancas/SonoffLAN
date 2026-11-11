@@ -51,6 +51,12 @@
           "toggle": "Toggle",
           "momentary": "Momentary"
         }
+      },
+      "pulse_state": {
+        "state": {
+          "auto_off": "Auto off",
+          "auto_on": "Auto on"
+        }
       }
     },
     "sensor": {
